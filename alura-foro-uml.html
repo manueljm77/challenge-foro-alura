@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AluraForo — Diagrama UML</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 0.4rem;
+      color: #38bdf8;
+    }
+    p.subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .tab.active, .tab:hover {
+      background: #38bdf8;
+      color: #0f172a;
+      border-color: #38bdf8;
+      font-weight: 600;
+    }
+    .diagram-container {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid #334155;
+      overflow-x: auto;
+      display: none;
+    }
+    .diagram-container.active { display: block; }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+    .legend {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🗂️ AluraForo — Diagrama UML</h1>
+<p class="subtitle">Challenge Alura · Java + Spring Boot</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('clases')">📦 Diagrama de Clases</button>
+  <button class="tab" onclick="showTab('er')">🗄️ Entidad-Relación</button>
+  <button class="tab" onclick="showTab('secuencia')">🔄 Flujo de Autenticación</button>
+</div>
+
+<!-- CLASES -->
+<div class="diagram-container active" id="tab-clases">
+  <div class="mermaid">
+classDiagram
+    class Usuario {
+      -Long id
+      -String nombre
+      -String email
+      -String contrasena
+      -Perfil perfil
+      +getAuthorities() Collection
+      +getUsername() String
+      +isAccountNonExpired() boolean
+      +isEnabled() boolean
+    }
+
+    class Topico {
+      -Long id
+      -String titulo
+      -String mensaje
+      -LocalDateTime fechaCreacion
+      -StatusTopico status
+      -Usuario autor
+      -Curso curso
+      -List~Respuesta~ respuestas
+      +actualizarDatos(DatosActualizarTopico)
+      +cerrar()
+    }
+
+    class Respuesta {
+      -Long id
+      -String mensaje
+      -Topico topico
+      -LocalDateTime fechaCreacion
+      -Usuario autor
+      -Boolean solucion
+    }
+
+    class Curso {
+      -Long id
+      -String nombre
+      -Categoria categoria
+    }
+
+    class StatusTopico {
+      <<enumeration>>
+      ABIERTO
+      CERRADO
+      NO_RESPONDIDO
+      SOLUCIONADO
+    }
+
+    class Perfil {
+      <<enumeration>>
+      ADMIN
+      ESTUDIANTE
+    }
+
+    class Categoria {
+      <<enumeration>>
+      FRONTEND
+      BACKEND
+      DEVOPS
+      DATA_SCIENCE
+    }
+
+    class TopicoController {
+      -TopicoService service
+      +registrar(DatosCrearTopico) ResponseEntity
+      +listar(Pageable) Page
+      +detalle(Long) ResponseEntity
+      +actualizar(Long, DatosActualizarTopico) ResponseEntity
+      +eliminar(Long) ResponseEntity
+    }
+
+    class AutenticacionController {
+      -AuthenticationManager manager
+      -TokenService tokenService
+      +autenticar(DatosAutenticacion) ResponseEntity
+    }
+
+    class TokenService {
+      -String secret
+      +generarToken(Usuario) String
+      +getSubject(String) String
+    }
+
+    class TratadorDeErrores {
+      +tratarError404() ResponseEntity
+      +tratarError400() ResponseEntity
+      +tratarErrorValidacion() ResponseEntity
+    }
+
+    Usuario "1" --> "0..*" Topico : crea
+    Usuario "1" --> "0..*" Respuesta : escribe
+    Topico "1" --> "0..*" Respuesta : tiene
+    Topico "*" --> "1" Curso : pertenece
+    Topico --> StatusTopico : usa
+    Usuario --> Perfil : tiene
+    Curso --> Categoria : clasifica
+    TopicoController ..> Topico : gestiona
+    AutenticacionController ..> TokenService : usa
+    AutenticacionController ..> Usuario : autentica
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="dot" style="background:#4ade80"></div> Entidades JPA</div>
+    <div class="legend-item"><div class="dot" style="background:#60a5fa"></div> Controladores</div>
+    <div class="legend-item"><div class="dot" style="background:#f59e0b"></div> Enumeraciones</div>
+    <div class="legend-item"><div class="dot" style="background:#a78bfa"></div> Servicios</div>
+  </div>
+</div>
+
+<!-- ER -->
+<div class="diagram-container" id="tab-er">
+  <div class="mermaid">
+erDiagram
+    USUARIOS {
+      bigint id PK
+      varchar nombre
+      varchar email
+      varchar contrasena
+      varchar perfil
+    }
+    TOPICOS {
+      bigint id PK
+      varchar titulo
+      varchar mensaje
+      datetime fecha_creacion
+      varchar status
+      bigint autor_id FK
+      bigint curso_id FK
+    }
+    RESPUESTAS {
+      bigint id PK
+      varchar mensaje
+      bigint topico_id FK
+      bigint autor_id FK
+      datetime fecha_creacion
+      boolean solucion
+    }
+    CURSOS {
+      bigint id PK
+      varchar nombre
+      varchar categoria
+    }
+
+    USUARIOS ||--o{ TOPICOS : "crea"
+    USUARIOS ||--o{ RESPUESTAS : "escribe"
+    TOPICOS ||--o{ RESPUESTAS : "tiene"
+    CURSOS ||--o{ TOPICOS : "clasifica"
+  </div>
+</div>
+
+<!-- SECUENCIA -->
+<div class="diagram-container" id="tab-secuencia">
+  <div class="mermaid">
+sequenceDiagram
+    actor Cliente
+    participant AC as AutenticacionController
+    participant AM as AuthenticationManager
+    participant US as UserDetailsService
+    participant TS as TokenService
+    participant DB as Base de Datos
+    participant SF as SecurityFilter
+    participant TC as TopicoController
+
+    Note over Cliente,TC: 1. Login
+    Cliente->>AC: POST /login {email, password}
+    AC->>AM: authenticate(token)
+    AM->>US: loadUserByUsername(email)
+    US->>DB: findByEmail(email)
+    DB-->>US: Usuario
+    US-->>AM: UserDetails
+    AM-->>AC: Authentication OK
+    AC->>TS: generarToken(usuario)
+    TS-->>AC: JWT Token
+    AC-->>Cliente: 200 OK { token }
+
+    Note over Cliente,TC: 2. Usar API protegida
+    Cliente->>SF: GET /topicos (Authorization: Bearer token)
+    SF->>TS: getSubject(token)
+    TS-->>SF: email válido
+    SF->>US: loadUserByUsername(email)
+    US-->>SF: UserDetails
+    SF->>SF: setAuthentication(context)
+    SF->>TC: request pasa al controller
+    TC->>DB: findAll(pageable)
+    DB-->>TC: Lista de Tópicos
+    TC-->>Cliente: 200 OK [tópicos]
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({ 
+    startOnLoad: true, 
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#1e40af',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#3b82f6',
+      lineColor: '#64748b',
+      secondaryColor: '#0f172a',
+      tertiaryColor: '#1e293b'
+    }
+  });
+
+  function showTab(name) {
+    document.querySelectorAll('.diagram-container').forEach(d => d.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
