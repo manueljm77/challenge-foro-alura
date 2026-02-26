@@ -1,4 +1,4 @@
-package com.Alura.alura_foro;
+package com.alura.alura_foro;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
