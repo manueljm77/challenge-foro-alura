@@ -1,6 +1,7 @@
 
 package com.alura.alura_foro.modelo;
 
+import com.alura.alura_foro.dto.DatosActualizarTopico;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import jakarta.persistence.Column;
@@ -16,13 +17,15 @@ public class Topico {
     private Long id;
 
     private String titulo;
-
     private String mensaje;
 
-    private LocalDateTime fechaCreacion;
+    // 1. Mapeamos explícitamente al nombre de la columna en MySQL
+    @Column(name = "fecha_creacion") // ← Verifica si en tu BD es 'fecha' o 'fecha_creacion'
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")  // ← Mapea a la columna real en tu BD
-    private EstadoTopico estado;
+    @Column(name = "status")
+    private EstadoTopico estado = EstadoTopico.ABIERTO;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "autor_id")
@@ -32,21 +35,26 @@ public class Topico {
     @JoinColumn(name = "curso_id")
     private Curso curso;
 
-    // ✅ Constructor principal
+
+
+    // Constructor vacío requerido por JPA
+    public Topico() {}
+
+    // Constructor para tu Service
     public Topico(String titulo, String mensaje, Usuario autor, Curso curso) {
         this.titulo = titulo;
         this.mensaje = mensaje;
         this.autor = autor;
         this.curso = curso;
+
         this.fechaCreacion = LocalDateTime.now();
         this.estado = EstadoTopico.ABIERTO;
     }
 
-    // ✅ Constructor JPA)
-    public Topico() {
-    }
 
 
+
+    // Getters
     public Long getId() { return id; }
     public String getTitulo() { return titulo; }
     public String getMensaje() { return mensaje; }
@@ -55,8 +63,13 @@ public class Topico {
     public Usuario getAutor() { return autor; }
     public Curso getCurso() { return curso; }
 
-    // ✅ Setters mínimos necessarily
-    public void setTitulo(String titulo) { this.titulo = titulo; }
-    public void setMensaje(String mensaje) { this.mensaje = mensaje; }
-    public void setEstado(EstadoTopico estado) { this.estado = estado; }
+    public void actualizarDatos(DatosActualizarTopico datos) {
+        if (datos.titulo() != null) {
+            this.titulo = datos.titulo();
+        }
+        if (datos.mensaje() != null) {
+            this.mensaje = datos.mensaje();
+        }
+
+    }
 }

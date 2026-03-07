@@ -14,6 +14,6 @@ public record DatosRegistroTopico(
         @NotNull(message = "El autor es obligatorio")
         Long autorId,
 
-        @NotNull(message = "El curso es obligatorio")
+        @NotNull(message = "El ID del  curso es obligatorio")
         Long cursoId
 ) {}
